@@ -18,13 +18,13 @@ def create_graph():
     G = nx.DiGraph()
 
     # Add the nodes
-    G.add_node('A', pos=(0, 2))
+    G.add_node('A', pos=(0, 2), demand=-10)  # Source node
     G.add_node('B', pos=(2, 3))
     G.add_node('C', pos=(2, 1))
     G.add_node('D', pos=(3.5, 2))
     G.add_node('E', pos=(5, 3))
     G.add_node('F', pos=(5, 1))
-    G.add_node('G', pos=(7, 2))
+    G.add_node('G', pos=(7, 2), demand=10)  # Sink node
 
     # Add the edges
     G.add_edge('A', 'B', cost=20, capacity=20)
@@ -55,6 +55,7 @@ def get_color_map(G):
 
 
 def draw_graph(G):
+    plt.figure(figsize=(8,6))
     color_map = get_color_map(G)
     pos = nx.get_node_attributes(G, 'pos')
     nx.draw(G, node_color=color_map, with_labels=True, pos=pos)
@@ -69,6 +70,39 @@ def draw_graph(G):
                               markerfacecolor='g', markersize=15)]
     plt.legend(handles=legend_elements, loc='upper right')
     plt.show()
+    plt.close()
+
+
+def draw_solution(G, d):
+    plt.figure(figsize=(8,6))
+    color_map = get_color_map(G)
+    pos = nx.get_node_attributes(G, 'pos')
+    edge_colors = []
+    edge_width = []
+    for key, value in d.items():
+        for second_key, second_value in value.items():
+            if second_value != 0:
+                edge_colors.append('r')
+                edge_width.append(2)
+            else:
+                edge_colors.append('b')
+                edge_width.append(1)
+
+    nx.draw(G, node_color=color_map, with_labels=True,
+            pos=pos, edge_color=edge_colors, width=edge_width)
+    edge_labels = dict([((u, v,), "({},{})".format(
+        d['cost'], d['capacity']))for u, v, d in G.edges(data=True)])
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+    plt.text(x=6, y=1, s='(cost,capacity)', fontsize='small')
+    plt.text(x=-0.25, y=1, s='Flow value = 10', fontsize='small')
+    legend_elements = [Line2D([0], [0], marker='o', color='w', label='Source',
+                              markerfacecolor='r', markersize=15),
+                       Line2D([0], [0], marker='o', color='w', label='Sink',
+                              markerfacecolor='g', markersize=15),
+                       Line2D([0], [0], marker='_', color='r', label='Minimum cost flow',
+                              markerfacecolor='r', markersize=15)]
+    plt.legend(handles=legend_elements, loc='upper right')
+    plt.savefig('solution.png')
     plt.close()
 
 
@@ -105,10 +139,11 @@ def get_objective(G, variables):
     return lpSum(variables["{}-{}".format(edge[0], edge[1])] * G[edge[0]][edge[1]]['cost'] for edge in G.edges())
 
 
-def print_problem(prob):
+def print_solution(prob):
     print("Status:{}".format(LpStatus[prob.status]))
 
     for x in prob.variables():
-        print("{}={}".format(x.name, x.varValue))
+        if x.varValue != 0:
+            print("{}={}".format(x.name, x.varValue))
 
     print("The minimum cost is {}".format(value(prob.objective)))

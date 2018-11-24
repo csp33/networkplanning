@@ -9,49 +9,75 @@ Academic year 2018/19
 from tools import *  # File with all the necessary functions
 
 DEBUG = False
+USE_PULP = True
 
 # First, create the graph
 
 G = create_graph()
 
-# Then, we define the problem
+print("Using PuLP to solve the problem? {}".format(USE_PULP))
 
-prob = LpProblem("Minimum Cost Flow", LpMinimize)
+if USE_PULP:
+    # Method 1: calculate it using linear programming with PuLP
 
-# Create the variables
+    # Then, we define the problem
 
-variables = get_variables(G)
+    prob = LpProblem("Minimum Cost Flow", LpMinimize)
 
-# Add the constraints
+    # Create the variables
 
-constraints = get_constraints(variables)
+    variables = get_variables(G)
 
-for c in constraints:
-    prob += c
+    # Add the constraints
 
-# Now, the objective function
+    constraints = get_constraints(variables)
 
-objective = get_objective(G, variables)
+    for c in constraints:
+        prob += c
 
-prob += objective
+    # Now, the objective function
 
-# Let's print the problem to verify that the input data is OK (debugging)
-if DEBUG:
-    print(prob)
+    objective = get_objective(G, variables)
 
-# Save the problem to a file
+    prob += objective
 
-prob.writeLP("min_cost.lp")
+    # Let's print the problem to verify that the input data is OK (debugging)
+    if DEBUG:
+        print(prob)
 
-# Let's solve it!
+    # Save the problem to a file
 
-prob.solve()
+    prob.writeLP("min_cost.lp")
 
-# Finally, let's show the status of the problem, the final values for the variables and the cost.
+    # Let's solve it!
 
-print_problem(prob)
+    prob.solve()
 
-draw_graph(G)
+    # Let's show the status of the problem, the final values for the variables and the cost.
 
-# Draw the flow in the graph
-# TODO!!!
+    print_solution(prob)
+
+    # Finally, let's create the dictionary to plot the solution graph
+
+    flow_dict={}
+    for node in G.nodes():
+        flow_dict[node]={}
+
+    for x in prob.variables():
+        flow_dict[x.name[0]][x.name[2]]=x.varValue
+
+
+else:
+    # Method 2: calculate it using networkx_simplex method
+
+    flow_cost, flow_dict = nx.network_simplex(G, weight='cost')
+
+    print("The minimum cost is {}".format(flow_cost))
+    for key, value in flow_dict.items():
+        for second_key, second_value in value.items():
+            if second_value != 0:
+                print("{}-{}={}".format(key, second_key, second_value))
+
+
+#draw_graph(G)
+draw_solution(G,flow_dict)
