@@ -1,3 +1,11 @@
+"""
+Problem 4
+Developed by Carlos Sánchez Páez
+Network Planning
+Academic year 2018/19
+
+"""
+
 from tools import *  # File with all the necessary functions
 
 DEBUG = False
