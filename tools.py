@@ -8,6 +8,8 @@ Academic year 2018/19
 
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
 import pydot
 from pulp import *
 
@@ -43,8 +45,10 @@ def get_color_map(G):
     color_map = []
 
     for node in G:
-        if node in {'G', 'A'}:  # Source and sink nodes
+        if node == 'A':  # Source
             color_map.append('red')
+        elif node == 'G':  # Sink
+            color_map.append('green')
         else:
             color_map.append('blue')
     return color_map
@@ -57,7 +61,13 @@ def draw_graph(G):
     edge_labels = dict([((u, v,), "({},{})".format(
         d['cost'], d['capacity']))for u, v, d in G.edges(data=True)])
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-
+    plt.text(x=6, y=1, s='(cost,capacity)', fontsize='small')
+    plt.text(x=-0.25, y=1, s='Flow value = 10', fontsize='small')
+    legend_elements = [Line2D([0], [0], marker='o', color='w', label='Source',
+                              markerfacecolor='r', markersize=15),
+                       Line2D([0], [0], marker='o', color='w', label='Sink',
+                              markerfacecolor='g', markersize=15)]
+    plt.legend(handles=legend_elements, loc='upper right')
     plt.show()
     plt.close()
 

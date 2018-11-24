@@ -51,6 +51,7 @@ prob.solve()
 
 print_problem(prob)
 
+draw_graph(G)
 
 # Draw the flow in the graph
 # TODO!!!
