@@ -20,7 +20,7 @@ print("Using PuLP to solve the problem? {}".format(USE_PULP))
 if USE_PULP:
     # Method 1: calculate it using linear programming with PuLP
 
-    # Then, we define the problem
+    # We must define the problem
 
     prob = LpProblem("Minimum Cost Flow", LpMinimize)
 
@@ -42,6 +42,7 @@ if USE_PULP:
     prob += objective
 
     # Let's print the problem to verify that the input data is OK (debugging)
+    
     if DEBUG:
         print(prob)
 

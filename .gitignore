@@ -22,7 +22,9 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
+__pycache__/*
 *.egg
+*.pyc
 MANIFEST
 
 # PyInstaller
